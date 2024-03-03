@@ -209,6 +209,11 @@ export default class ShakeFace extends FaceDetector {
         }
     }
 
+
+    /**
+     * 
+     * image and canvas methods
+     */
     getCanvas({image = this.getImage(), x = 0, y = 0, width = image.width, height = image.height}) {
         const canvas = Canvas.create();
         canvas.width = width;
