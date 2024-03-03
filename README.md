@@ -1,118 +1,152 @@
-# npm-package-template
+# ShakeFace
 
-[![NPM](https://nodei.co/npm/npm-package-template.png)](https://nodei.co/npm/npm-package-template/)
-
-[![NPM version](https://img.shields.io/npm/v/npm-package-template.svg)](https://www.npmjs.com/package/npm-package-template)
-[![Build Status](https://travis-ci.org/mastashake08/npm-package-template.svg?branch=master)](https://travis-ci.org/mastashake08/npm-package-template)
-[![Coverage Status](https://coveralls.io/repos/github/mastashake08/npm-package-template/badge.svg?branch=master)](https://coveralls.io/github/mastashake08/npm-package-template?branch=master)
-
-npm package template.
+ShakeFace is a JavaScript package that provides functionality for detecting and applying filters to faces in images or video frames. It includes features such as detecting faces in images, applying filters to detected faces, and creating streams for real-time face detection and filter application.
 
 ## Installation
 
-Clone repository with Git:
+To install ShakeFace, you can use npm:
 
-```sh
-git clone https://github.com/mastashake08/npm-package-template.git
-cd npm-package-template
+```bash
+npm install shake-face
 ```
 
 ## Usage
 
-Rename package (use [npm-package-name-checker](https://mastashake08.org/npm-package-name-checker/) to check for name availability):
+```javascript
+import ShakeFace from 'shake-face';
 
-```sh
-# replace $NAME with your package name
-git grep -l npm-package-template | xargs sed -i '' -e "s/npm-package-template/$NAME/g"
+// Create a ShakeFace instance
+const shakeFace = new ShakeFace();
+
+// Detect faces in an image
+const image = document.getElementById('imageElement');
+shakeFace.detect(image)
+  .then(faces => {
+    // Do something with detected faces
+  })
+  .catch(error => {
+    console.error(error);
+  });
+
+// Apply filters to detected faces
+const filter = shakeFace.colorPop();
+// Apply the filter to an image
+const filteredImage = filter.getImage();
+
+// Create a stream for real-time face detection
+const video = document.getElementById('videoElement');
+const detectionStream = shakeFace.detectStream();
+video.srcObject = new MediaStream([detectionStream.readable]);
+
+// Add filters to detected faces in a video stream
+const filterStream = shakeFace.addFilterStream(filter);
+const filteredVideoStream = new MediaStream([filterStream.readable]);
+video.srcObject = filteredVideoStream;
+
+// Apply filters to detected faces in a video stream
+const applyFiltersStream = shakeFace.applyFiltersStream();
+const appliedFiltersVideoStream = new MediaStream([applyFiltersStream.readable]);
+video.srcObject = appliedFiltersVideoStream;
 ```
 
-Manually update the files:
+## API
 
-- [ ] LICENSE
-- [ ] README.md
-- [ ] package.json
+### `ShakeFace(options)`
 
-Reinitialize Git repository:
+- `options` (optional): Configuration options for ShakeFace instance.
+  - `maxDetectedFaces`: Maximum number of faces to detect (default: 5).
+  - `fastMode`: Enable fast mode for face detection (default: false).
 
-```sh
-rm -rf .git
-git init
-```
+### `detect(image)`
 
-Install package dependencies:
+Detect faces in an image.
 
-```sh
-npm install
-```
+- `image`: Image element or URL.
 
-Make first commit:
+Returns a promise that resolves with an array of detected faces.
 
-```sh
-git commit -am "feat: initial commit"
-```
+### `detectStream()`
 
-## Testing
+Create a TransformStream for real-time face detection.
 
-Run tests:
+Returns a TransformStream that takes video frames as input and detects faces.
 
-```sh
-npm test
-```
+### `addFilterStream(filter)`
 
-Run tests in watch mode:
+Create a TransformStream to add filters to detected faces in a video stream.
 
-```sh
-npm run test:watch
-```
+- `filter`: Filter to apply to detected faces.
 
-Run tests with coverage:
+Returns a TransformStream that adds filters to detected faces.
 
-```sh
-npm run test:coverage
-```
+### `applyFiltersStream()`
 
-View coverage in browser:
+Create a TransformStream to apply filters to detected faces in a video stream.
 
-```sh
-npm run test:coverage:report
-open coverage/index.html
-```
+Returns a TransformStream that applies filters to detected faces.
 
-Lint files:
+### `colorPop()`
 
-```sh
-npm run lint
-```
+Apply the color pop filter to detected faces.
 
-Fix lint errors:
+Returns a canvas element with the color pop filter applied.
 
-```sh
-npm run lint:fix
-```
+### `track(face, options)`
 
-## Release
+Apply tracking to a detected face.
 
-Only collaborators with credentials can release and publish:
+- `face`: Detected face object.
+- `options` (optional): Options for tracking.
+  - `stroke`: Color of the tracking outline (default: 'white').
+  - `lineWidth`: Width of the tracking outline (default: 3).
 
-```sh
-npm run release
-git push --follow-tags && npm publish
-```
+### `blur(face, blurRadius)`
 
-To see what files are going to be published, run the command:
+Apply a Gaussian blur filter to a detected face.
 
-```sh
-npm pack --dry-run
-# tar tvf $(npm pack)
-```
+- `face`: Detected face object.
+- `blurRadius`: Radius of the blur filter.
 
-## Support
+### `addFilter(filter, face)`
 
-- [Patreon](https://b.remarkabl.org/patreon)
-- [Ko-fi](https://b.remarkabl.org/ko-fi)
-- [Liberapay](https://b.remarkabl.org/liberapay)
-- [Teepsring](https://b.remarkabl.org/teespring)
+Add a filter to a detected face.
+
+- `filter`: Filter to apply to the face.
+- `face`: Detected face object.
+
+### `applyFilter(filter, face)`
+
+Apply a filter to a detected face.
+
+- `filter`: Filter to apply to the face.
+- `face`: Detected face object.
+
+### `applyFilters()`
+
+Apply filters to all detected faces.
+
+Returns a canvas element with filters applied to all detected faces.
+
+### `getCanvas(options)`
+
+Create a canvas element and draw an image on it.
+
+- `options` (optional): Options for creating the canvas and drawing the image.
+
+Returns an object with the canvas and context.
+
+### `setImage(imgData)`
+
+Set the image data for processing.
+
+- `imgData`: Image data to set.
+
+### `getImage()`
+
+Get the current image data.
+
+Returns the current image data.
 
 ## License
 
-[MIT](https://github.com/mastashake08/npm-package-template/blob/master/LICENSE)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
