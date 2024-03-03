@@ -148,7 +148,7 @@ export default class ShakeFace extends FaceDetector {
         const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
         const svgUrl = URL.createObjectURL(svgBlob);
 
-        this.addFilter(svgUrl, face);
+        this.addFilter(`url('${svgUrl}#trackFilter')`, face);
 
     }
 // Function to apply a Gaussian blur filter to content drawn on a canvas
@@ -169,7 +169,7 @@ export default class ShakeFace extends FaceDetector {
         var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
         var svgUrl = URL.createObjectURL(svgBlob);
 
-        this.addFilter(`${svgUrl}#blurFilter`);
+        this.addFilter(`url('${svgUrl}#blurFilter')`, face);
     }
 
 
@@ -203,11 +203,10 @@ export default class ShakeFace extends FaceDetector {
     }
     applyFilters() {
         for(const [face, filters] of this.faceFilters) {
-            filters.reduce(filter => {
-                this.applyFilter(filter, face)
-            },this.getCanvas());
+            filters.forEach((filter) => {
+                this.setImage(this.applyFilter(filter, face));
+            });
         }
-        return this.setImage();
     }
 
     getCanvas({image = this.getImage(), x = 0, y = 0, width = image.width, height = image.height}) {
