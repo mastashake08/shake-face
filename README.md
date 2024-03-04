@@ -1,4 +1,4 @@
-```markdown
+
 # ShakeFace
 
 ShakeFace is a JavaScript class designed for detecting and applying filters to faces in images or video streams. It extends the functionality of a face detection library by providing additional features for real-time face tracking and filter application.
@@ -51,6 +51,3 @@ Contributions are welcome! Feel free to open issues for bug reports, feature req
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-```
-
-This README provides a brief overview of the ShakeFace library, installation instructions, usage examples, contribution guidelines, and licensing information. You can customize it further to include specific details about your library's features, usage, and contribution guidelines.
