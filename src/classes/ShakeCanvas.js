@@ -27,4 +27,6 @@ export default class ShakeCanvas extends HTMLCanvasElement {
     }
 }
 
-customElements.define("shake-canvas", ShakeCanvas);
+customElements.define("shake-canvas", ShakeCanvas, {
+    extends: 'canvas'
+});
