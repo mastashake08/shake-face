@@ -1,4 +1,4 @@
-import Canvas from "./Canvas";
+import ShakeCanvas from "./ShakeCanvas";
 import ShakeFaceEvent from "./ShakeFaceEvent";
 /**
  * ShakeFace class for detecting and applying filters to faces.
@@ -24,14 +24,25 @@ export default class ShakeFace extends FaceDetector {
         this.setImage(image);
     }
 
+    constructor(options = {
+        maxDetectedFaces: 5,
+        fastMode: false
+    }) {
+        super(options);
+        // a map that will hold the faces and the changes made
+        this.faceFilters = new Map();
+
+    }
+
     /**
      * Override the parent detect function and set the faces in the filters map.
      * @param {HTMLImageElement} image - The image to detect faces in.
      * @returns {Promise<Array>} - Promise resolving with an array of detected faces.
      */
-    async detect() {
+    
+    async detect(image = this.getImage()) {
         try {
-            const faces = await super.detect(this.getImage());
+            const faces = await super.detect(image);
             for(const face of faces) {
                 this.addNewFace(face);
             }
@@ -45,12 +56,15 @@ export default class ShakeFace extends FaceDetector {
      * Creates a TransformStream for real-time face detection.
      * @returns {TransformStream} - TransformStream that takes video frames and detects faces.
      */
-    detectStream() {
+    static detectStream() {
         return new TransformStream({
             async transform(videoFrame, controller) {
-                this.setImage(videoFrame);
-                await this.detect(videoFrame);
-                controller.enqueue(videoFrame);
+                const faces = await this.detect(videoFrame);
+                const frameWithFaces = {
+                    faces: faces,
+                    frame: videoFrame
+                };
+                controller.enqueue(frameWithFaces);
             }
         });
     }
@@ -99,34 +113,36 @@ export default class ShakeFace extends FaceDetector {
 
     /**
      * The color pop filter makes the background greyscale and leaves the faces colored.
-     * @returns {Canvas} - Canvas element with the color pop filter applied.
+     * @returns {ShakeCanvas} - Canvas element with the color pop filter applied.
      */
-    colorPop() {
-        const image = this.getImage();
-        const { bgCanvas, bgCtx} = this.getCanvas({
+    colorPop(image = this.getImage()) {
+        
+        const bgCanvas = this.getCanvas({
             image: image, 
             width: image.width, 
             height: image.height
         });
+        const bgCtx = bgCanvas.getContext("2d");
         bgCanvas.filter = 'grayscale(100%)';
 
-        const { retCanvas,retCtx} = this.getCanvas({
+        const retCanvas = this.getCanvas({
             image: bgCanvas, 
             width: bgCanvas.width, 
             height: bgCanvas.height
         });
+        const retCtx = retCanvas.getContext("2d");
 
         const faces = this.faceFilters.keys();
         for(const face of faces) {
-            const {canvas, ctx} = this.getCanvas({
+            const canvas = this.getCanvas({
                 image: image,
                 x: face.boundingBox.x,
                 y: face.boundingBox.y,
                 width: face.boundingBox.width,
                 height: face.boundingBox.height
             });
-
-            retCanvas.drawImage(canvas, face.boundingBox.x, face.boundingBox.y)
+            const ctx = canvas.getContext("2d");
+            retCtx.drawImage(canvas, face.boundingBox.x, face.boundingBox.y)
         }
         
         return retCanvas;
@@ -212,11 +228,12 @@ url('${svgUrl}#blurFilter')`, face);
      */
     replace(face, image) {
         const baseImage = this.getImage();
-        const { bgCanvas, bgCtx} = this.getCanvas({
+        const bgCanvas = this.getCanvas({
             image: baseImage, 
             width: baseImage.width, 
             height: baseImage.height
         });
+        const bgCtx = bgCanvas.getContext("2d");
         image.width = face.boundingBox.width;
         image.height = face.boundingBox.height;
         bgCtx.drawImage(image, face.boundingBox.x, face.boundingBox.y); 
@@ -241,19 +258,20 @@ url('${svgUrl}#blurFilter')`, face);
      * Apply a filter to a detected face.
      * @param {string} filter - Filter to apply to the face.
      * @param {Object} face - Detected face object.
-     * @returns {Canvas} - Canvas element with the filter applied.
+     * @returns {ShakeCanvas} - Canvas element with the filter applied.
      */
     applyFilter(filter, face) {
         try {
             const image = this.getImage();
-            const {imgCanvas, imgCtx} = this.getCanvas({image: image, width: image.width, height: image.height});
-    
+            const imgCanvas = this.getCanvas({image: image, width: image.width, height: image.height});
+            const imgCtx = imgCanvas.getContext("2d");
             const faceData = imgCtx.getImageData(face.boundingBox.x, face.boundingBox.y, face.boundingBox.width, face.boundingBox.height);
-            const {faceCanvas, faceCtx} = this.getCanvas({
+            const faceCanvas = this.getCanvas({
                 image: faceData, 
                 width: face.boundingBox.width, 
                 height: face.boundingBox.height
             });
+            const faceCtx = faceCanvas.getContext("2d");
             faceCanvas.filter = filter;
     
             imgCtx.putImageData(faceCtx.getImageData(0, 0, faceCanvas.width, faceCanvas.height));
@@ -287,17 +305,12 @@ url('${svgUrl}#blurFilter')`, face);
      * @returns {Object} - Object with the canvas and context.
      */
     getCanvas({image = this.getImage(), x = 0, y = 0, width = image.width, height = image.height}) {
-        const canvas = Canvas.create();
-        canvas.width = width;
-        canvas.height = height;
-
+        const canvas = ShakeCanvas.create(width, height);
+        
         const ctx = canvas.getContext("2d");
         ctx.drawImage(image, x, y);
 
-        return {
-            canvas,
-            ctx
-        };
+        return canvas;
     }
 
     /**
