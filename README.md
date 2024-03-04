@@ -22,14 +22,15 @@ npm install @mastashake08/shake-face
 import ShakeFace from '@mastashake08/shake-face';
 
 // Initialize ShakeFace with options
-const shakeFace = new ShakeFace({
+
+const image = document.getElementById('inputImage');
+const shakeFace = new ShakeFace(image, {
     maxDetectedFaces: 5,
     fastMode: false
 });
 
 // Detect faces in an image
-const image = document.getElementById('inputImage');
-shakeFace.detect(image)
+shakeFace.detect()
     .then(faces => {
         // Process detected faces
         faces.forEach(face => {
