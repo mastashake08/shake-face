@@ -13,13 +13,13 @@ ShakeFace is a JavaScript class designed for detecting and applying filters to f
 ## Installation
 
 ```bash
-npm install shake-face
+npm install @mastashake08/shake-face
 ```
 
 ## Usage
 
 ```javascript
-import ShakeFace from 'shake-face';
+import ShakeFace from '@mastashake08/shake-face';
 
 // Initialize ShakeFace with options
 const shakeFace = new ShakeFace({
