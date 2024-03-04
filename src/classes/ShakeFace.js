@@ -1,6 +1,18 @@
 import Canvas from "./Canvas";
+import ShakeFaceEvent from "./ShakeFaceEvent";
+/**
+ * ShakeFace class for detecting and applying filters to faces.
+ * @extends FaceDetector
+ */
 export default class ShakeFace extends FaceDetector {
-    #image;
+    #_image;
+
+    /**
+     * Constructs a new ShakeFace instance.
+     * @param {Object} options - Configuration options.
+     * @param {number} options.maxDetectedFaces - Maximum number of faces to detect (default: 5).
+     * @param {boolean} options.fastMode - Enable fast mode for face detection (default: false).
+     */
     constructor(options = {
         maxDetectedFaces: 5,
         fastMode: false
@@ -8,28 +20,30 @@ export default class ShakeFace extends FaceDetector {
         super(options);
         // a map that will hold the faces and the changes made
         this.faceFilters = new Map();
-        
     }
 
-    // override the parent detect function and set the faces in the filters map
+    /**
+     * Override the parent detect function and set the faces in the filters map.
+     * @param {HTMLImageElement} image - The image to detect faces in.
+     * @returns {Promise<Array>} - Promise resolving with an array of detected faces.
+     */
     async detect(image) {
         try {
-            
             const faces = await super.detect(this.setImage(image));
             for(const face of faces) {
                 this.addNewFace(face);
             }
             return faces;
         } catch (error) {
-            console.log(error);
+            throw new ShakeFaceEvent('error', this);
         }
     }
 
     /**
-     * 
-     * @returns a TransformStream that takes videoFrames and detects faces. Set up for other transformations
+     * Creates a TransformStream for real-time face detection.
+     * @returns {TransformStream} - TransformStream that takes video frames and detects faces.
      */
-     detectStream() {
+    detectStream() {
         return new TransformStream({
             async transform(videoFrame, controller) {
                 this.setImage(videoFrame);
@@ -39,6 +53,11 @@ export default class ShakeFace extends FaceDetector {
         });
     }
 
+    /**
+     * Creates a TransformStream to add filters to detected faces in a video stream.
+     * @param {string} filter - Filter to apply to detected faces.
+     * @returns {TransformStream} - TransformStream that adds filters to detected faces.
+     */
     addFilterStream(filter) {
         return new TransformStream({
              transform(videoFrame, controller) {
@@ -48,6 +67,11 @@ export default class ShakeFace extends FaceDetector {
         });
     }
 
+    /**
+     * Creates a TransformStream to apply filters to detected faces in a video stream.
+     * @param {string} filter - Filter to apply to detected faces.
+     * @returns {TransformStream} - TransformStream that applies filters to detected faces.
+     */
     applyFiltersStream(filter) {
         return new TransformStream({
              transform(videoFrame, controller) {
@@ -57,23 +81,24 @@ export default class ShakeFace extends FaceDetector {
         });
     }
 
-    // adds a new face to the image map 
+    /**
+     * Adds a new face to the image map.
+     * @param {Object} face - Detected face object.
+     */
     addNewFace(face) {
         try {
             this.faceFilters.set(face, []);  
         } catch (error) {
-            console.log(error);
+            throw new ShakeFaceEvent('error', this);
         }
     }
 
-    /*
-    *
-    * Filter Functions
-    */
+    // Filter Functions
 
-    /* 
-    * The color pop filter makes the background greyscale and leaves the faces colored
-    */
+    /**
+     * The color pop filter makes the background greyscale and leaves the faces colored.
+     * @returns {Canvas} - Canvas element with the color pop filter applied.
+     */
     colorPop() {
         const image = this.getImage();
         const { bgCanvas, bgCtx} = this.getCanvas({
@@ -103,14 +128,15 @@ export default class ShakeFace extends FaceDetector {
         }
         
         return retCanvas;
-
     }
 
-        /**
-         *
-         * @param {*} face 
-         * @param {*} param1 
-         */
+    /**
+     * Track a detected face and apply a tracking outline.
+     * @param {Object} face - Detected face object.
+     * @param {Object} options - Options for tracking.
+     * @param {string} options.stroke - Color of the tracking outline (default: 'white').
+     * @param {number} options.lineWidth - Width of the tracking outline (default: 3).
+     */
     track(face, {
         stroke = 'white',
         lineWidth = '3'
@@ -141,17 +167,19 @@ export default class ShakeFace extends FaceDetector {
         feComposite.setAttribute("operator", "in");
         filter.appendChild(feComposite);
 
-      
-
         // Convert SVG to data URL
         const svgData = new XMLSerializer().serializeToString(svg);
         const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
         const svgUrl = URL.createObjectURL(svgBlob);
 
         this.addFilter(`url('${svgUrl}#trackFilter')`, face);
-
     }
-// Function to apply a Gaussian blur filter to content drawn on a canvas
+
+    /**
+     * Apply a Gaussian blur filter to a detected face.
+     * @param {Object} face - Detected face object.
+     * @param {number} blurRadius - Radius of the blur filter.
+     */
     blur(face, blurRadius) {
         // Create an SVG element
         var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -169,19 +197,50 @@ export default class ShakeFace extends FaceDetector {
         var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
         var svgUrl = URL.createObjectURL(svgBlob);
 
-        this.addFilter(`url('${svgUrl}#blurFilter')`, face);
+        this.addFilter(`
+
+url('${svgUrl}#blurFilter')`, face);
     }
 
+    /**
+     * Replace a detected face with a given image.
+     * @param {Object} face - Detected face object.
+     * @param {HTMLImageElement} image - Image to replace the face with.
+     * @returns {ImageData} - Base image after replacement.
+     */
+    replace(face, image) {
+        const baseImage = this.getImage();
+        const { bgCanvas, bgCtx} = this.getCanvas({
+            image: baseImage, 
+            width: baseImage.width, 
+            height: baseImage.height
+        });
+        image.width = face.boundingBox.width;
+        image.height = face.boundingBox.height;
+        bgCtx.drawImage(image, face.boundingBox.x, face.boundingBox.y); 
+        return this.setImage(bgCtx.getImageData(0,0, bgCanvas.width, bgCanvas.height));
+    }
 
+    /**
+     * Adds a filter to a detected face.
+     * @param {string} filter - Filter to apply to the face.
+     * @param {Object} face - Detected face object.
+     */
     addFilter(filter, face) {
         try {
             const filters = this.faceFilters.get(face);
             this.faceFilters.set(face, filters.push(filter));
         } catch (error) {
-            console.log(error);
+            throw new ShakeFaceEvent('error', this);
         }
     }
 
+    /**
+     * Apply a filter to a detected face.
+     * @param {string} filter - Filter to apply to the face.
+     * @param {Object} face - Detected face object.
+     * @returns {Canvas} - Canvas element with the filter applied.
+     */
     applyFilter(filter, face) {
         try {
             const image = this.getImage();
@@ -198,9 +257,13 @@ export default class ShakeFace extends FaceDetector {
             imgCtx.putImageData(faceCtx.getImageData(0, 0, faceCanvas.width, faceCanvas.height));
             return imgCanvas;
         } catch (error) {
-            console.log(error);
+            throw new ShakeFaceEvent('error', this);
         }
     }
+
+    /**
+     * Apply filters to all detected faces.
+     */
     applyFilters() {
         for(const [face, filters] of this.faceFilters) {
             filters.forEach((filter) => {
@@ -209,10 +272,17 @@ export default class ShakeFace extends FaceDetector {
         }
     }
 
+    // Image and Canvas Methods
 
     /**
-     * 
-     * image and canvas methods
+     * Create a canvas element and draw an image on it.
+     * @param {Object} options - Options for creating the canvas and drawing the image.
+     * @param {HTMLImageElement} [options.image=this.getImage()] - Image to draw on the canvas.
+     * @param {number} [options.x=0] - X-coordinate of the image on the canvas.
+     * @param {number} [options.y=0] - Y-coordinate of the image on the canvas.
+     * @param {number} [options.width=image.width] - Width of the canvas.
+     * @param {number} [options.height=image.height] - Height of the canvas.
+     * @returns {Object} - Object with the canvas and context.
      */
     getCanvas({image = this.getImage(), x = 0, y = 0, width = image.width, height = image.height}) {
         const canvas = Canvas.create();
@@ -227,22 +297,26 @@ export default class ShakeFace extends FaceDetector {
             ctx
         };
     }
+
+    /**
+     * Set the image data for processing.
+     * @param {ImageData} imgData - Image data to set.
+     * @returns {ImageData} - The updated image data.
+     */
     setImage(imgData) {
         try {
-            this.#image = imgData;
+            this.#_image = imgData;
             return this.getImage();
         } catch (error) {
-            console.log(error);
+            throw new ShakeFaceEvent('error', this);
         }
     }
 
+    /**
+     * Get the current image data.
+     * @returns {ImageData} - The current image data.
+     */
     getImage() {
-        return this.#image;
+        return this.#_image;
     }
-
-   
-
-    
-
- 
 }

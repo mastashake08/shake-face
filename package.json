@@ -1,6 +1,6 @@
 {
   "name": "@mastashake08/shake-face",
-  "version": "1.0.0-alpha",
+  "version": "0.0.3",
   "description": "ShakeFace is a JavaScript package that provides functionality for detecting and applying filters to faces in images or video frames. It includes features such as detecting faces in images, applying filters to detected faces, and creating streams for real-time face detection and filter application.",
   "author": "Jyrone Parker <jyrone.parker@gmail.com>",
   "main": "index.js",
