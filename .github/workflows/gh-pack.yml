@@ -15,7 +15,7 @@ jobs:
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          rename: '@mastashake08/npm-package-template'
+          rename: '@mastashake08/shake-face'
 
       - run: echo "name - ${{ steps.info.outputs.name }}"
       - run: echo "version - ${{ steps.info.outputs.version }}"
