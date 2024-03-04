@@ -13,13 +13,15 @@ export default class ShakeFace extends FaceDetector {
      * @param {number} options.maxDetectedFaces - Maximum number of faces to detect (default: 5).
      * @param {boolean} options.fastMode - Enable fast mode for face detection (default: false).
      */
-    constructor(options = {
+    constructor(image, options = {
         maxDetectedFaces: 5,
         fastMode: false
     }) {
         super(options);
         // a map that will hold the faces and the changes made
         this.faceFilters = new Map();
+
+        this.setImage(image);
     }
 
     /**
@@ -27,9 +29,9 @@ export default class ShakeFace extends FaceDetector {
      * @param {HTMLImageElement} image - The image to detect faces in.
      * @returns {Promise<Array>} - Promise resolving with an array of detected faces.
      */
-    async detect(image) {
+    async detect() {
         try {
-            const faces = await super.detect(this.setImage(image));
+            const faces = await super.detect(this.getImage());
             for(const face of faces) {
                 this.addNewFace(face);
             }
