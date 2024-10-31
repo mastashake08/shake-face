@@ -1,3 +1,4 @@
+
 # ShakeFace
 
 **ShakeFace** is a JavaScript library that leverages facial detection and image processing to apply custom filters to detected faces in images or video streams. It builds upon the native `FaceDetector` API, providing real-time face detection and a suite of customizable filter options.
@@ -15,6 +16,7 @@
   - [ShakeFace](#shakeface)
   - [ShakeFaceEvent](#shakefaceevent)
 - [Examples](#examples)
+- [Social Media](#social-media)
 - [License](#license)
 
 ## Features
@@ -131,10 +133,16 @@ Blur a detected face:
 shakeFace.blur(face, 5);
 ```
 
+## Social Media
+
+Connect with me on social media:
+
+- [![TikTok](https://img.shields.io/badge/TikTok-%23000000.svg?style=for-the-badge&logo=TikTok&logoColor=white)](https://www.tiktok.com/@jyroneparker)
+- [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/mastashake08)
+- [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/c/jyroneparker)
+- [![X (Twitter)](https://img.shields.io/badge/X-%231DA1F2.svg?style=for-the-badge&logo=Twitter&logoColor=white)](https://twitter.com/jyroneparker)
+- [![Website](https://img.shields.io/badge/Website-%23000000.svg?style=for-the-badge&logo=About.me&logoColor=white)](https://jyroneparker.com)
+
 ## License
 
 MIT License
-
----
-
-This README outlines the primary functions, installation instructions, and basic usage examples, providing a foundational reference for the ShakeFace library. Let me know if you’d like to add more specific details!
