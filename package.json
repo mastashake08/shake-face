@@ -1,8 +1,17 @@
 {
   "name": "@mastashake08/shake-face",
-  "version": "0.0.6",
+  "version": "0.9.0",
   "description": "ShakeFace is a JavaScript package that provides functionality for detecting and applying filters to faces in images or video frames. It includes features such as detecting faces in images, applying filters to detected faces, and creating streams for real-time face detection and filter application.",
   "author": "Jyrone Parker <jyrone.parker@gmail.com>",
+  "funding": [{
+    "github": "https://github.com/sponsors/mastashake08",
+    "patreon": "https://www.patreon.com/mastashake08",
+    "ko-fi": "https://ko-fi.com/mastashake08",
+    "liberapay": "https://liberapay.com/mastashake08",
+    "custom": [
+      "https://cash.app/$mastashake08"
+    ]
+  }],
   "main": "index.js",
   "module": "index.js",
   "scripts": {
@@ -13,13 +22,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mastashake08/npm-package-template"
+    "url": "https://github.com/mastashake08/shake-face"
   },
   "bugs": {
-    "url": "https://github.com/mastashake08/npm-package-template/issues"
+    "url": "https://github.com/mastashake08/shake-face/issues"
   },
   "keywords": [
-    "npm-package-template"
+    "face-detection-api"
   ],
   "dependencies": {
     "@mastashake08/shake-canvas": "0.0.2"
