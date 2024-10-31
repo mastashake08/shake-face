@@ -1,7 +1,3 @@
-Here’s a sample README for your project:
-
----
-
 # ShakeFace
 
 **ShakeFace** is a JavaScript library that leverages facial detection and image processing to apply custom filters to detected faces in images or video streams. It builds upon the native `FaceDetector` API, providing real-time face detection and a suite of customizable filter options.
