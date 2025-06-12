@@ -1,17 +1,30 @@
 {
   "name": "@mastashake08/shake-face",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "description": "ShakeFace is a JavaScript package that provides functionality for detecting and applying filters to faces in images or video frames. It includes features such as detecting faces in images, applying filters to detected faces, and creating streams for real-time face detection and filter application.",
   "author": "Jyrone Parker <jyrone.parker@gmail.com>",
-  "funding": [{
-    "github": "https://github.com/sponsors/mastashake08",
-    "patreon": "https://www.patreon.com/mastashake08",
-    "ko-fi": "https://ko-fi.com/mastashake08",
-    "liberapay": "https://liberapay.com/mastashake08",
-    "custom": [
-      "https://cash.app/$mastashake08"
-    ]
-  }],
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/mastashake08"
+    },
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/mastashake08"
+    },
+    {
+      "type": "ko-fi",
+      "url": "https://ko-fi.com/mastashake08"
+    },
+    {
+      "type": "liberapay",
+      "url": "https://liberapay.com/mastashake08"
+    },
+    {
+      "type": "custom",
+      "url": "https://cash.app/$mastashake08"
+    }
+  ],
   "main": "index.js",
   "module": "index.js",
   "scripts": {
@@ -28,7 +41,26 @@
     "url": "https://github.com/mastashake08/shake-face/issues"
   },
   "keywords": [
-    "face-detection-api"
+    "face-detection-api",
+    "face detection",
+    "face filters",
+    "face recognition",
+    "image processing",
+    "video processing",
+    "javascript",
+    "webcam",
+    "face replacement",
+    "real-time",
+    "face effects",
+    "face tracking",
+    "canvas",
+    "media",
+    "browser",
+    "ai",
+    "machine learning",
+    "computer vision",
+    "augmented reality",
+    "photo editing"
   ],
   "dependencies": {
     "@mastashake08/shake-canvas": "0.0.2"
@@ -49,5 +81,5 @@
   "files": [
     "src"
   ],
-  "license": "MIT"
+  "license": "Shake License 1.0"
 }
