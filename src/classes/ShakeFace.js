@@ -9,29 +9,25 @@ export default class ShakeFace extends FaceDetector {
 
     /**
      * Constructs a new ShakeFace instance.
-     * @param {Object} options - Configuration options.
-     * @param {number} options.maxDetectedFaces - Maximum number of faces to detect (default: 5).
-     * @param {boolean} options.fastMode - Enable fast mode for face detection (default: false).
+     * @param {HTMLImageElement} [image] - The image to process.
+     * @param {Object} [options] - Configuration options.
+     * @param {number} [options.maxDetectedFaces=5] - Maximum number of faces to detect.
+     * @param {boolean} [options.fastMode=false] - Enable fast mode for face detection.
      */
     constructor(image, options = {
         maxDetectedFaces: 5,
         fastMode: false
     }) {
+        // If only options are provided (no image), shift arguments
+        if (image && typeof image === "object" && !("src" in image)) {
+            options = image;
+            image = undefined;
+        }
         super(options);
-        // a map that will hold the faces and the changes made
         this.faceFilters = new Map();
-
-        this.setImage(image);
-    }
-
-    constructor(options = {
-        maxDetectedFaces: 5,
-        fastMode: false
-    }) {
-        super(options);
-        // a map that will hold the faces and the changes made
-        this.faceFilters = new Map();
-
+        if (image) {
+            this.setImage(image);
+        }
     }
 
     /**
@@ -224,9 +220,10 @@ url('${svgUrl}#blurFilter')`, face);
      * Replace a detected face with a given image.
      * @param {Object} face - Detected face object.
      * @param {HTMLImageElement} image - Image to replace the face with.
+     * @param {boolean} keepLandmarks - Whether to keep points of interest (default: false).
      * @returns {ImageData} - Base image after replacement.
      */
-    replace(face, image) {
+    replace(face, image, keepLandmarks = false) {
         const baseImage = this.getImage();
         const bgCanvas = this.getCanvas({
             image: baseImage, 
@@ -237,7 +234,32 @@ url('${svgUrl}#blurFilter')`, face);
         image.width = face.boundingBox.width;
         image.height = face.boundingBox.height;
         bgCtx.drawImage(image, face.boundingBox.x, face.boundingBox.y); 
-        return this.setImage(bgCtx.getImageData(0,0, bgCanvas.width, bgCanvas.height));
+
+        if (keepLandmarks) {
+            const landmarks = face.landmarks;
+            if (landmarks) {
+                const originalImage = this.getImage();
+                const originalCanvas = this.getCanvas({
+                    image: originalImage,
+                    width: originalImage.width,
+                    height: originalImage.height
+                });
+                const originalCtx = originalCanvas.getContext("2d");
+
+                landmarks.forEach((landmark) => {
+                    if (landmark.type === 'eye' || landmark.type === 'mouth') {
+                        // Assume each landmark has x, y, width, height
+                        // If not, you may need to define a region size
+                        const { x, y, width = 20, height = 20 } = landmark;
+                        // Get the region from the original image
+                        const region = originalCtx.getImageData(x, y, width, height);
+                        // Draw it over the replacement image
+                        bgCtx.putImageData(region, x, y);
+                    }
+                });
+            }
+        }
+        return this.setImage(bgCtx.getImageData(0, 0, bgCanvas.width, bgCanvas.height));
     }
 
     /**
