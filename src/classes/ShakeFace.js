@@ -1,4 +1,4 @@
-import ShakeCanvas from "@mastashake08/shake-canvas";
+import { ShakeCanvas } from "@mastashake08/shake-canvas";
 import ShakeFaceEvent from "./ShakeFaceEvent";
 /**
  * ShakeFace class for detecting and applying filters to faces.
